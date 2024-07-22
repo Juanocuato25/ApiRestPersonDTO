@@ -1,11 +1,16 @@
 package com.camilo.apirestful.apirestdto.Service;
 
 
+import com.camilo.apirestful.apirestdto.Exceptions.ToDoExceptions;
 import com.camilo.apirestful.apirestdto.Model.Persona;
 import com.camilo.apirestful.apirestdto.Repository.PersonaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PersonaSevice {
@@ -17,7 +22,12 @@ public class PersonaSevice {
         return personaRepository.save(persona);
     }
 
+    @Transactional
     public void borrarPersona(Long id){
+        Optional<Persona> personaOptional  = this.personaRepository.findById(id);
+        if(personaOptional.isEmpty()){
+            throw new ToDoExceptions("Persona no encontrada", HttpStatus.NOT_FOUND);
+        }
         personaRepository.deleteById(id);
     }
 
@@ -29,8 +39,13 @@ public class PersonaSevice {
         return personaRepository.findById(id).orElse(null);
     }
 
-    public Persona modificarPersona(Persona persona){
-        return personaRepository.save(persona);
+    @Transactional
+    public void modificarPersona(Persona persona){
+        Optional<Persona> personaOptional  = this.personaRepository.findById(persona.getId());
+        if(personaOptional.isEmpty()){
+            throw new ToDoExceptions("Persona no encontrada", HttpStatus.NOT_FOUND);
+        }
+        personaRepository.save(persona);
     }
 
     public Persona modificarAtributoPersona(Persona persona){
